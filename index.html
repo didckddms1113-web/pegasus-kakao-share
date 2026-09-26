@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>페가수스 길드 카카오톡 공유</title>
+  <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.8.3/kakao.min.js"></script>
+  <style>
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:#0c1018;color:#f5f7fb;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif}
+    body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:18px}
+    .card{width:100%;max-width:430px;background:#171c26;border:1px solid #2c3442;border-radius:18px;padding:22px}
+    h1{font-size:22px;margin:0 0 8px}
+    .sub{color:#9da8b8;font-size:14px;margin-bottom:18px}
+    .preview{white-space:pre-wrap;word-break:break-word;background:#0f141d;border:1px solid #2a3240;border-radius:14px;padding:16px;line-height:1.65;font-size:16px;margin-bottom:14px}
+    button,a{width:100%;min-height:52px;border:0;border-radius:13px;font-size:16px;font-weight:800;cursor:pointer;text-decoration:none;display:flex;align-items:center;justify-content:center}
+    #shareBtn{background:#fee500;color:#191919;margin-bottom:10px}
+    #backBtn{background:#2a3240;color:#f5f7fb}
+    .msg{min-height:22px;margin-top:12px;font-size:13px;color:#ffb4b4}
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>페가수스 길드</h1>
+    <div class="sub">카카오톡 공유</div>
+
+    <div id="preview" class="preview">공유할 내용을 불러오는 중...</div>
+
+    <button id="shareBtn" type="button">💬 카카오톡으로 공유</button>
+    <a id="backBtn" href="#">길드 사이트로 돌아가기</a>
+
+    <div id="message" class="msg"></div>
+  </main>
+
+<script>
+const KAKAO_JAVASCRIPT_KEY = '여기에_카카오_JavaScript_키_붙여넣기';
+
+const params = new URLSearchParams(location.search);
+const shareText = params.get('text') || '페가수스 길드';
+const returnUrl = params.get('returnUrl') || 'https://script.google.com/macros/s/AKfycbznSQGMbqtTwMUEH3-a8slkXYbfp43uyb8giwUqG8nnE7ttkBc1Pe-upEINCwfXps_ZOQ/exec';
+
+document.getElementById('preview').textContent = shareText;
+document.getElementById('backBtn').href = returnUrl;
+
+function initKakao(){
+  if(!KAKAO_JAVASCRIPT_KEY || KAKAO_JAVASCRIPT_KEY.indexOf('여기에_')===0){
+    document.getElementById('message').textContent = 'JavaScript 키를 먼저 설정해주세요.';
+    return false;
+  }
+
+  if(typeof Kakao === 'undefined'){
+    document.getElementById('message').textContent = '카카오 SDK를 불러오지 못했습니다.';
+    return false;
+  }
+
+  try{
+    if(!Kakao.isInitialized()){
+      Kakao.init(KAKAO_JAVASCRIPT_KEY);
+    }
+    return Kakao.isInitialized();
+  }catch(e){
+    console.error(e);
+    document.getElementById('message').textContent = '카카오 초기화에 실패했습니다.';
+    return false;
+  }
+}
+
+document.getElementById('shareBtn').addEventListener('click', function(){
+  document.getElementById('message').textContent = '';
+
+  if(!initKakao()) return;
+
+  try{
+    Kakao.Share.sendDefault({
+      objectType:'text',
+      text:shareText,
+      link:{
+        mobileWebUrl:returnUrl,
+        webUrl:returnUrl
+      }
+    });
+  }catch(e){
+    console.error(e);
+    document.getElementById('message').textContent =
+      '공유 요청에 실패했습니다. 카카오 도메인 설정을 확인해주세요.';
+  }
+});
+</script>
+</body>
+</html>
